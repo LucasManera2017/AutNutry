@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import AppRouter from './router'; // Importe seu AppRouter
-import './index.css'; // Mantenha seu CSS global (onde o Tailwind é importado)
+import './index.css'; 
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

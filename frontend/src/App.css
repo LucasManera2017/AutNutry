@@ -1,13 +1,37 @@
 @import "tailwindcss";
 
+@keyframes borderPulseGreen {
+  0%, 100% {
+    border-color: #00ff00; /* verde neon */
+  }
+  50% {
+    border-color: #05df63; /* outro tom neon */
+  }
+}
+
+@layer utilities {
+  .hover\\:animate-borderPulse:hover {
+    animation: borderPulseGreen 1s infinite;
+  }
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0;
+  height: 100%;
 }
 
-body{
+body {
   background-color: rgb(43, 43, 43);
+}
+
+input:-webkit-autofill {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: #ffffff !important;
+  /* cor do texto */
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.87)
 }
 
 .logo {
@@ -16,9 +40,11 @@ body{
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -27,6 +53,7 @@ body{
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
