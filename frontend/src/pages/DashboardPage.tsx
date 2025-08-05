@@ -68,8 +68,8 @@ function DashboardPage(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 p-8">
-      <div className="flex justify-between items-center flex-wrap">
+    <div className="min-h-screen bg-black/90 ">
+      <div className="flex justify-between items-center flex-wrap px-8 py-4 bg-gray-800/25">
         <a className="text-3xl font-bold  text-green-400 font-mono tracking-widest" href="">
           AutNutry
         </a>
