@@ -163,6 +163,32 @@ function PatientsPage(): JSX.Element {
     }
   };
 
+  // FUNÇÃO PARA EXCLUIR UM PACIENTE
+  const handleDeletePatient = async (patientId: number) => {
+    // Passo de segurança: confirmação do usuário
+    const confirmation = window.confirm("Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita.");
+    
+    if (!confirmation) {
+      return; // Se o usuário cancelar, a função para aqui
+    }
+
+    // Lógica para exclusão no Supabase
+    const { error } = await supabase
+      .from('pacientes')
+      .delete()
+      .eq('id', patientId); // <<-- IMPORTANTE: Filtra para deletar apenas o paciente com este ID
+
+    if (error) {
+      console.error('Erro ao excluir paciente:', error.message);
+      //adicionar um estado para exibir um erro para o usuário
+    } else {
+      console.log('Paciente excluído com sucesso!');
+      
+      // Atualiza o estado da lista para remover o paciente excluído
+      setPatients(prevPatients => prevPatients.filter(p => p.id !== patientId));
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -173,11 +199,18 @@ function PatientsPage(): JSX.Element {
 
   return (
     <div className="min-h-screen bg-black/90 p-8">
+      <button
+            className=" flex justify-center py-3 px-8 border border-transparent rounded-3xl shadow-sm text-sm font-medium text-white bg-green-400/80 hover:bg-[#05DF63] hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+            onClick={() => {
+              navigate('/dashboard')
+            }} 
+          >
+            Voltar
+          </button>
       <div className="max-w-7xl mx-auto bg-gray-800/30 p-6 rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-green-400">Meus Pacientes</h1>
           <button
-            // Futuro botão para adicionar um novo paciente
             className=" flex justify-center py-3 px-4 border border-transparent rounded-3xl shadow-sm text-sm font-medium text-white bg-green-400/80 hover:bg-[#05DF63] hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
             onClick={() => {
               setIsAddingPatient(true);// ATUALIZAÇÃO: Abre o formulário
@@ -392,10 +425,10 @@ function PatientsPage(): JSX.Element {
                     <td className="py-4 px-6">{patient.telefone}</td>
                     <td className="py-4 px-6">{patient.data_nascimento}</td>
                     <td className="py-4 px-6 text-center flex flex-wrap">
-                      <button onClick={() => startEditing(patient)} className="text-blue-300 hover:text-blue-700 mr-4">
+                      <button onClick={() => startEditing(patient)} className="cursor-pointer text-blue-300 hover:text-blue-700 mr-4">
                         Editar
                       </button>
-                      <button className="text-red-500 hover:text-red-700">
+                      <button onClick={() => handleDeletePatient(patient.id)} className="cursor-pointer text-red-500 hover:text-red-700">
                         Excluir
                       </button>
                     </td>
