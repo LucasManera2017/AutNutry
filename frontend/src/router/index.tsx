@@ -8,6 +8,7 @@ import NotFoundPage from '../pages/NotFoundPage';
 import { supabase } from '../services/supabase';
 import type { Session } from '@supabase/supabase-js'; // Importe o tipo Session do Supabase JS
 import PatientsPage from '../pages/PatientsPage';
+import PatientDetailsPage from '../pages/PatientDetailsPage';
  // Importe o tipo Session do Supabase JS
 
 // Defina a interface para as props de PrivateRoute
@@ -76,6 +77,12 @@ function AppRouter(): JSX.Element {
             </PrivateRoute>
           }
         />
+
+        <Route 
+          path="/patients/:id" 
+          element={<PrivateRoute><PatientDetailsPage /></PrivateRoute>} 
+        />  
+
         {/* Redirecionamento da raiz para o login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 

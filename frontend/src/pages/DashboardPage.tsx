@@ -4,7 +4,7 @@ import { supabase } from "../services/supabase";
 import { useNavigate, Link } from "react-router-dom"; // Importe Link
 import type { User } from "@supabase/supabase-js"; // Importe o tipo User do Supabase JS
 import { useTitle } from "../hooks/useTitle";
-// Importe o tipo User do Supabase JS
+import { Header } from "../components/header"
 
 function DashboardPage(): JSX.Element {
   useTitle('Dashboard | AutNutry');
@@ -68,29 +68,11 @@ function DashboardPage(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-black/90 ">
-      <div className="flex justify-between items-center flex-wrap px-8 py-4 bg-gray-800/25">
-        <a className="text-3xl font-bold  text-green-400 font-mono tracking-widest" href="">
-          AutNutry
-        </a>
-        <div className="flex justify-center items-center">
-          <p className="text-[1.25rem]  text-green-400 mr-6">
-            Olá, {user ? user.user_metadata?.full_name || user.email : ""}
-          </p>
-          <div className="text-center">
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 ml-3 hover:cursor-pointer hover:bg-red-600 text-[0.8rem] text-white font-bold py-1 px-3 rounded-lg shadow-md transition duration-150 ease-in-out"
-              disabled={loading}
-            >
-              {loading ? "Saindo..." : "Sair"}
-            </button>
-          </div>
-        </div>
-      </div>
-      <div className="max-w-4xl mx-auto  ">
-        <p className="text-3xl text-gray-400 text-center mb-8 mt-15">
-          Bem-vindo ao seu painel de gerenciamento de pacientes.
+    <div className="bg-[url(../../public/images/backgroundLogin.jpg)] bg-cover bg-center bg-no-repeat min-h-screen bg-black/90 flex flex-col">
+      <Header user={user} handleLogout={handleLogout} loading={loading}/>
+      <div className="flex-1 max-w-4xl mx-auto flex flex-col justify-center items-center mb-70">
+        <p className="text-3xl text-white font-light tracking-wider text-center mb-8">
+          Bem-vindo ao seu painel de gerenciamento.
         </p>
 
         {/* Links de navegação para as próximas seções */}

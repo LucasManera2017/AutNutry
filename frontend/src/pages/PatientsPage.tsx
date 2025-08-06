@@ -1,8 +1,10 @@
 // src/pages/PatientsPage.tsx
 import React, { useEffect, useState, type JSX } from "react";
 import { supabase } from "../services/supabase";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTitle } from "../hooks/useTitle"; // Importe o hook de título
+import { Header } from "../components/header";
+import type { User } from "@supabase/supabase-js";
 
 // Tipagem para um paciente, baseada na sua tabela 'pacientes'
 interface Patient {
@@ -18,6 +20,7 @@ function PatientsPage(): JSX.Element {
   useTitle("Meus Pacientes | App Nutry");
 
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [user, setUser] = useState<User | null>(null); // Pode ser um objeto User ou null
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
@@ -57,6 +60,8 @@ function PatientsPage(): JSX.Element {
         navigate("/login");
         return;
       }
+
+      setUser(user);
 
       // Busca os pacientes onde o 'nutricionista_id' é o mesmo que o ID do usuário logado
       const { data, error } = await supabase
@@ -166,26 +171,42 @@ function PatientsPage(): JSX.Element {
   // FUNÇÃO PARA EXCLUIR UM PACIENTE
   const handleDeletePatient = async (patientId: number) => {
     // Passo de segurança: confirmação do usuário
-    const confirmation = window.confirm("Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita.");
-    
+    const confirmation = window.confirm(
+      "Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita."
+    );
+
     if (!confirmation) {
       return; // Se o usuário cancelar, a função para aqui
     }
 
     // Lógica para exclusão no Supabase
     const { error } = await supabase
-      .from('pacientes')
+      .from("pacientes")
       .delete()
-      .eq('id', patientId); // <<-- IMPORTANTE: Filtra para deletar apenas o paciente com este ID
+      .eq("id", patientId); // <<-- IMPORTANTE: Filtra para deletar apenas o paciente com este ID
 
     if (error) {
-      console.error('Erro ao excluir paciente:', error.message);
+      console.error("Erro ao excluir paciente:", error.message);
       //adicionar um estado para exibir um erro para o usuário
     } else {
-      console.log('Paciente excluído com sucesso!');
-      
+      console.log("Paciente excluído com sucesso!");
+
       // Atualiza o estado da lista para remover o paciente excluído
-      setPatients(prevPatients => prevPatients.filter(p => p.id !== patientId));
+      setPatients((prevPatients) =>
+        prevPatients.filter((p) => p.id !== patientId)
+      );
+    }
+  };
+
+  // FUNÇÃO PARA LOGOUT DO USUÁRIO
+  const handleLogout = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Erro ao fazer logout:", error.message);
+      setLoading(false);
+    } else {
+      console.log("Logout bem-sucedido!");
     }
   };
 
@@ -198,24 +219,17 @@ function PatientsPage(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-black/90 p-8">
-      <button
-            className=" flex justify-center py-3 px-8 border border-transparent rounded-3xl shadow-sm text-sm font-medium text-white bg-green-400/80 hover:bg-[#05DF63] hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
-            onClick={() => {
-              navigate('/dashboard')
-            }} 
-          >
-            Voltar
-          </button>
-      <div className="max-w-7xl mx-auto bg-gray-800/30 p-6 rounded-lg shadow-lg">
+    <div className="min-h-screen bg-black/90">
+      <Header user={user} handleLogout={handleLogout} loading={loading} />
+      <div className="max-w-7xl mx-auto bg-gray-800/30 p-6 rounded-lg shadow-lg mt-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-green-400">Meus Pacientes</h1>
           <button
             className=" flex justify-center py-3 px-4 border border-transparent rounded-3xl shadow-sm text-sm font-medium text-white bg-green-400/80 hover:bg-[#05DF63] hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
             onClick={() => {
-              setIsAddingPatient(true);// ATUALIZAÇÃO: Abre o formulário
+              setIsAddingPatient(true); // ATUALIZAÇÃO: Abre o formulário
               setEditingPatient(null); // ATUALIZAÇÃO: Garante que a edição é cancelada
-            }} 
+            }}
           >
             + Adicionar Paciente
           </button>
@@ -326,17 +340,29 @@ function PatientsPage(): JSX.Element {
         {/*Formulário de EDIÇÃO (só aparece se editingPatient não for null) */}
         {editingPatient && (
           <div className="mb-6 p-6 border-1 border-green-400/40">
-            <h2 className="text-2xl text-center font-semibold text-gray-300 mb-4">Editar Paciente</h2>
+            <h2 className="text-2xl text-center font-semibold text-gray-300 mb-4">
+              Editar Paciente
+            </h2>
             <form onSubmit={handleUpdatePatient} className="space-y-4">
               {/* CAMPO NOME */}
               <div>
-                <label htmlFor="editPatientName" className="block text-sm font-medium text-gray-300">Nome Completo</label>
+                <label
+                  htmlFor="editPatientName"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  Nome Completo
+                </label>
                 <input
                   type="text"
                   id="editPatientName"
                   // Valor inicial do campo é o do paciente que estamos editando
                   value={editingPatient.nome_completo}
-                  onChange={(e) => setEditingPatient({...editingPatient, nome_completo: e.target.value})}
+                  onChange={(e) =>
+                    setEditingPatient({
+                      ...editingPatient,
+                      nome_completo: e.target.value,
+                    })
+                  }
                   className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
                   required
                 />
@@ -345,12 +371,22 @@ function PatientsPage(): JSX.Element {
               {/* ... Repita para E-mail, Telefone e Data de Nascimento, usando o mesmo padrão ... */}
               {/* CAMPO E-MAIL */}
               <div>
-                <label htmlFor="editPatientEmail" className="block text-sm font-medium text-gray-300">E-mail</label>
+                <label
+                  htmlFor="editPatientEmail"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  E-mail
+                </label>
                 <input
                   type="email"
                   id="editPatientEmail"
                   value={editingPatient.email}
-                  onChange={(e) => setEditingPatient({...editingPatient, email: e.target.value})}
+                  onChange={(e) =>
+                    setEditingPatient({
+                      ...editingPatient,
+                      email: e.target.value,
+                    })
+                  }
                   className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
                   required
                 />
@@ -358,12 +394,22 @@ function PatientsPage(): JSX.Element {
 
               {/* CAMPO TELEFONE */}
               <div>
-                <label htmlFor="editPatientPhone" className="block text-sm font-medium text-gray-300">Telefone</label>
+                <label
+                  htmlFor="editPatientPhone"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  Telefone
+                </label>
                 <input
                   type="tel"
                   id="editPatientPhone"
                   value={editingPatient.telefone}
-                  onChange={(e) => setEditingPatient({...editingPatient, telefone: e.target.value})}
+                  onChange={(e) =>
+                    setEditingPatient({
+                      ...editingPatient,
+                      telefone: e.target.value,
+                    })
+                  }
                   className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
                   required
                 />
@@ -371,19 +417,29 @@ function PatientsPage(): JSX.Element {
 
               {/* CAMPO DATA DE NASCIMENTO */}
               <div>
-                <label htmlFor="editPatientDob" className="block text-sm font-medium text-gray-300">Data de Nascimento</label>
+                <label
+                  htmlFor="editPatientDob"
+                  className="block text-sm font-medium text-gray-300"
+                >
+                  Data de Nascimento
+                </label>
                 <input
                   type="date"
                   id="editPatientDob"
                   value={editingPatient.data_nascimento}
-                  onChange={(e) => setEditingPatient({...editingPatient, data_nascimento: e.target.value})}
+                  onChange={(e) =>
+                    setEditingPatient({
+                      ...editingPatient,
+                      data_nascimento: e.target.value,
+                    })
+                  }
                   className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
                   required
                 />
               </div>
 
               {formError && <p className="text-red-500 text-sm">{formError}</p>}
-              
+
               <div className="flex justify-end space-x-2">
                 <button
                   type="button"
@@ -397,13 +453,12 @@ function PatientsPage(): JSX.Element {
                   disabled={isFormSubmitting}
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
                 >
-                  {isFormSubmitting ? 'Atualizando...' : 'Salvar Alterações'}
+                  {isFormSubmitting ? "Atualizando..." : "Salvar Alterações"}
                 </button>
               </div>
             </form>
           </div>
         )}
-
 
         {patients.length > 0 ? (
           <div className="overflow-x-auto">
@@ -420,15 +475,29 @@ function PatientsPage(): JSX.Element {
               <tbody>
                 {patients.map((patient) => (
                   <tr key={patient.id} className="border-b hover:bg-gray-500">
-                    <td className="py-4 px-6">{patient.nome_completo}</td>
+                    <td className="py-4 px-6">
+                      {/* NOVO: Nome do paciente é um link */}
+                      <Link
+                        to={`/patients/${patient.id}`}
+                        className="hover:text-green-400 hover:underline font-medium"
+                      >
+                        {patient.nome_completo}
+                      </Link>
+                    </td>{" "}
                     <td className="py-4 px-6">{patient.email}</td>
                     <td className="py-4 px-6">{patient.telefone}</td>
                     <td className="py-4 px-6">{patient.data_nascimento}</td>
-                    <td className="py-4 px-6 text-center flex flex-wrap">
-                      <button onClick={() => startEditing(patient)} className="cursor-pointer text-blue-300 hover:text-blue-700 mr-4">
+                    <td className="py-4 px-6 text-center flex flex-wrap items-center justify-center">
+                      <button
+                        onClick={() => startEditing(patient)}
+                        className="cursor-pointer text-blue-300 hover:text-blue-700 mr-4"
+                      >
                         Editar
                       </button>
-                      <button onClick={() => handleDeletePatient(patient.id)} className="cursor-pointer text-red-500 hover:text-red-700">
+                      <button
+                        onClick={() => handleDeletePatient(patient.id)}
+                        className="cursor-pointer text-red-500 hover:text-red-700"
+                      >
                         Excluir
                       </button>
                     </td>
