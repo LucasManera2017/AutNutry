@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTitle } from "../hooks/useTitle"; // Importe o hook de título
 import { Header } from "../components/header";
 import type { User } from "@supabase/supabase-js";
+import { useDateBr } from "../hooks/useDateBr";
 
 // Tipagem para um paciente, baseada na sua tabela 'pacientes'
 interface Patient {
@@ -32,6 +33,9 @@ function PatientsPage(): JSX.Element {
   const [newPatientDob, setNewPatientDob] = useState<string>(""); // Data de nascimento (dob = date of birth)
   const [isFormSubmitting, setIsFormSubmitting] = useState<boolean>(false); // Para desativar o botão durante o envio
   const [formError, setFormError] = useState<string>("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const { formatDateBR } = useDateBr();
 
   // ESTADOS PARA O FORMULÁRIO DE EDIÇÃO
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null); // Armazena o paciente que está sendo editado
@@ -39,12 +43,15 @@ function PatientsPage(): JSX.Element {
   // FUNÇÃO QUE ABRE O FORMULÁRIO DE EDIÇÃO
   const startEditing = (patient: Patient) => {
     setEditingPatient(patient);
-    setIsAddingPatient(false); // Garante que o formulário de adição está fechado
+    setIsAddingPatient(false);
+    setIsModalVisible(false); // Começa invisível
+    setTimeout(() => setIsModalVisible(true), 10); // Ativa a transição de entrada
   };
 
   // FUNÇÃO QUE FECHA O FORMULÁRIO DE EDIÇÃO
   const cancelEditing = () => {
-    setEditingPatient(null);
+    setIsModalVisible(false);
+    setTimeout(() => setEditingPatient(null), 300); // 300ms = duração da animação
   };
 
   useEffect(() => {
@@ -128,6 +135,11 @@ function PatientsPage(): JSX.Element {
       setNewPatientDob("");
       setIsAddingPatient(false);
     }
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalVisible(false);
+    setTimeout(() => setIsAddingPatient(false), 300);
   };
 
   // NOVA FUNÇÃO PARA ATUALIZAR UM PACIENTE
@@ -219,16 +231,25 @@ function PatientsPage(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-black/90">
+    <div className=" min-h-screen bg-black/90">
       <Header user={user} handleLogout={handleLogout} loading={loading} />
-      <div className="max-w-7xl mx-auto bg-gray-800/30 p-6 rounded-lg shadow-lg mt-8">
+      <div className="max-w-7xl mx-auto bg-[#222222] p-6 rounded-lg shadow-lg mt-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-green-400">Meus Pacientes</h1>
+          <div>
+            <h1 className="text-[2rem] font-bold text-white mb-3">
+              Meus Pacientes
+            </h1>
+            <p className="text-gray-300 font-medium">
+              Total de pacientes: {patients.length}
+            </p>
+          </div>
           <button
-            className=" flex justify-center py-3 px-4 border border-transparent rounded-3xl shadow-sm text-sm font-medium text-white bg-green-400/80 hover:bg-[#05DF63] hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+            className=" flex justify-center py-3 px-4 border border-transparent rounded-3xl shadow-sm text-sm font-medium text-white bg-green-400/80 hover:bg-green-500/80 hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
             onClick={() => {
               setIsAddingPatient(true); // ATUALIZAÇÃO: Abre o formulário
               setEditingPatient(null); // ATUALIZAÇÃO: Garante que a edição é cancelada
+              setIsAddModalVisible(false);
+              setTimeout(() => setIsAddModalVisible(true), 10);
             }}
           >
             + Adicionar Paciente
@@ -237,275 +258,298 @@ function PatientsPage(): JSX.Element {
 
         {/*Formulário de Cadastro de Paciente */}
         {isAddingPatient && (
-          <div className="mb-6 p-6 border-1 border-green-400/40 rounded-lg">
-            <h2 className="text-2xl text-center font-semibold text-gray-300 mb-4">
-              Novo Paciente
-            </h2>
-            <form onSubmit={handleAddPatient} className="space-y-4">
-              {/* CAMPO NOME */}
-              <div>
-                <label
-                  htmlFor="patientName"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  Nome Completo
-                </label>
-                <input
-                  type="text"
-                  id="patientName"
-                  value={newPatientName}
-                  onChange={(e) => setNewPatientName(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
-                  required
-                />
-              </div>
-
-              {/* CAMPO E-MAIL */}
-              <div>
-                <label
-                  htmlFor="patientEmail"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  E-mail
-                </label>
-                <input
-                  type="email"
-                  id="patientEmail"
-                  value={newPatientEmail}
-                  onChange={(e) => setNewPatientEmail(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
-                  required
-                />
-              </div>
-
-              {/* CAMPO TELEFONE */}
-              <div>
-                <label
-                  htmlFor="patientPhone"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  Telefone
-                </label>
-                <input
-                  type="tel"
-                  id="patientPhone"
-                  value={newPatientPhone}
-                  onChange={(e) => setNewPatientPhone(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
-                  required
-                />
-              </div>
-
-              {/* CAMPO DATA DE NASCIMENTO */}
-              <div>
-                <label
-                  htmlFor="patientDob"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  Data de Nascimento
-                </label>
-                <input
-                  type="date"
-                  id="patientDob"
-                  value={newPatientDob}
-                  onChange={(e) => setNewPatientDob(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
-                  required
-                />
-              </div>
-
-              {/* MENSAGEM DE ERRO DO FORMULÁRIO */}
-              {formError && <p className="text-red-500 text-sm">{formError}</p>}
-
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddingPatient(false)} // Esconde o formulário
-                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer transition"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isFormSubmitting}
-                  className="px-4 py-2 text-sm font-medium text-white bg-green-400/80 rounded-md hover:bg-green-400 cursor-pointer transition"
-                >
-                  {isFormSubmitting ? "Salvando..." : "Salvar Paciente"}
-                </button>
-              </div>
-            </form>
+          <div
+            className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300 ease-in-out ${
+              isAddModalVisible
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none"
+            }`}
+          >
+            <div
+              className={`bg-[#222222] p-8 rounded-lg shadow-lg w-full max-w-md transform transition-all duration-300 ease-in-out ${
+                isAddModalVisible
+                  ? "scale-100 opacity-100"
+                  : "scale-95 opacity-0"
+              }`}
+            >
+              <h2 className="text-2xl text-center font-semibold text-gray-100 mb-4">
+                Novo Paciente
+              </h2>
+              <form onSubmit={handleAddPatient} className="space-y-4">
+                {/* CAMPO NOME */}
+                <div>
+                  <label
+                    htmlFor="patientName"
+                    className="block text-sm font-medium text-gray-300"
+                  >
+                    Nome Completo
+                  </label>
+                  <input
+                    type="text"
+                    id="patientName"
+                    value={newPatientName}
+                    onChange={(e) => setNewPatientName(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
+                    required
+                  />
+                </div>
+                {/* CAMPO E-MAIL */}
+                <div>
+                  <label
+                    htmlFor="patientEmail"
+                    className="block text-sm font-medium text-gray-300"
+                  >
+                    E-mail
+                  </label>
+                  <input
+                    type="email"
+                    id="patientEmail"
+                    value={newPatientEmail}
+                    onChange={(e) => setNewPatientEmail(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
+                    required
+                  />
+                </div>
+                {/* CAMPO TELEFONE */}
+                <div>
+                  <label
+                    htmlFor="patientPhone"
+                    className="block text-sm font-medium text-gray-300"
+                  >
+                    Telefone
+                  </label>
+                  <input
+                    type="tel"
+                    id="patientPhone"
+                    value={newPatientPhone}
+                    onChange={(e) => setNewPatientPhone(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
+                    required
+                  />
+                </div>
+                {/* CAMPO DATA DE NASCIMENTO */}
+                <div>
+                  <label
+                    htmlFor="patientDob"
+                    className="block text-sm font-medium text-gray-300"
+                  >
+                    Data de Nascimento
+                  </label>
+                  <input
+                    type="date"
+                    id="patientDob"
+                    value={newPatientDob}
+                    onChange={(e) => setNewPatientDob(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
+                    required
+                  />
+                </div>
+                {/* MENSAGEM DE ERRO DO FORMULÁRIO */}
+                {formError && (
+                  <p className="text-red-500 text-sm">{formError}</p>
+                )}
+                <div className="flex justify-end space-x-2">
+                  <button
+                    type="button"
+                    onClick={handleCloseAddModal}
+                    className="px-4 py-2 text-sm font-medium text-gray-500 bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer transition"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isFormSubmitting}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-400/80 rounded-md hover:bg-green-500/80 cursor-pointer transition"
+                  >
+                    {isFormSubmitting ? "Salvando..." : "Salvar Paciente"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
         {/*Formulário de EDIÇÃO (só aparece se editingPatient não for null) */}
         {editingPatient && (
-          <div className="mb-6 p-6 border-1 border-green-400/40">
-            <h2 className="text-2xl text-center font-semibold text-gray-300 mb-4">
-              Editar Paciente
-            </h2>
-            <form onSubmit={handleUpdatePatient} className="space-y-4">
-              {/* CAMPO NOME */}
-              <div>
-                <label
-                  htmlFor="editPatientName"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  Nome Completo
-                </label>
-                <input
-                  type="text"
-                  id="editPatientName"
-                  // Valor inicial do campo é o do paciente que estamos editando
-                  value={editingPatient.nome_completo}
-                  onChange={(e) =>
-                    setEditingPatient({
-                      ...editingPatient,
-                      nome_completo: e.target.value,
-                    })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
-                  required
-                />
-              </div>
-
-              {/* ... Repita para E-mail, Telefone e Data de Nascimento, usando o mesmo padrão ... */}
-              {/* CAMPO E-MAIL */}
-              <div>
-                <label
-                  htmlFor="editPatientEmail"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  E-mail
-                </label>
-                <input
-                  type="email"
-                  id="editPatientEmail"
-                  value={editingPatient.email}
-                  onChange={(e) =>
-                    setEditingPatient({
-                      ...editingPatient,
-                      email: e.target.value,
-                    })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
-                  required
-                />
-              </div>
-
-              {/* CAMPO TELEFONE */}
-              <div>
-                <label
-                  htmlFor="editPatientPhone"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  Telefone
-                </label>
-                <input
-                  type="tel"
-                  id="editPatientPhone"
-                  value={editingPatient.telefone}
-                  onChange={(e) =>
-                    setEditingPatient({
-                      ...editingPatient,
-                      telefone: e.target.value,
-                    })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
-                  required
-                />
-              </div>
-
-              {/* CAMPO DATA DE NASCIMENTO */}
-              <div>
-                <label
-                  htmlFor="editPatientDob"
-                  className="block text-sm font-medium text-gray-300"
-                >
-                  Data de Nascimento
-                </label>
-                <input
-                  type="date"
-                  id="editPatientDob"
-                  value={editingPatient.data_nascimento}
-                  onChange={(e) =>
-                    setEditingPatient({
-                      ...editingPatient,
-                      data_nascimento: e.target.value,
-                    })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
-                  required
-                />
-              </div>
-
-              {formError && <p className="text-red-500 text-sm">{formError}</p>}
-
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={cancelEditing} // Usa a nova função de cancelar
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isFormSubmitting}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
-                >
-                  {isFormSubmitting ? "Atualizando..." : "Salvar Alterações"}
-                </button>
-              </div>
-            </form>
+          <div
+            className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300 ease-in-out ${
+              isModalVisible ? "opacity-100 " : "opacity-0 pointer-events-none"
+            }`}
+          >
+            <div
+              className={`bg-[#222222] p-8 rounded-lg shadow-lg w-full max-w-md transform transition-all duration-300 ease-in-out ${
+                isModalVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+              }`}
+            >
+              <h2 className="text-2xl text-center font-semibold text-gray-100 mb-4">
+                Editar paciente
+              </h2>
+              <form onSubmit={handleUpdatePatient} className="space-y-4">
+                {/* CAMPO NOME */}
+                <div>
+                  <label
+                    htmlFor="editPatientName"
+                    className="block text-sm font-medium text-gray-300"
+                  >
+                    Nome Completo
+                  </label>
+                  <input
+                    type="text"
+                    id="editPatientName"
+                    value={editingPatient.nome_completo}
+                    onChange={(e) =>
+                      setEditingPatient({
+                        ...editingPatient,
+                        nome_completo: e.target.value,
+                      })
+                    }
+                    className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
+                    required
+                  />
+                </div>
+                {/* CAMPO E-MAIL */}
+                <div>
+                  <label
+                    htmlFor="editPatientEmail"
+                    className="block text-sm font-medium text-gray-300"
+                  >
+                    E-mail
+                  </label>
+                  <input
+                    type="email"
+                    id="editPatientEmail"
+                    value={editingPatient.email}
+                    onChange={(e) =>
+                      setEditingPatient({
+                        ...editingPatient,
+                        email: e.target.value,
+                      })
+                    }
+                    className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
+                    required
+                  />
+                </div>
+                {/* CAMPO TELEFONE */}
+                <div>
+                  <label
+                    htmlFor="editPatientPhone"
+                    className="block text-sm font-medium text-gray-300"
+                  >
+                    Telefone
+                  </label>
+                  <input
+                    type="tel"
+                    id="editPatientPhone"
+                    value={editingPatient.telefone}
+                    onChange={(e) =>
+                      setEditingPatient({
+                        ...editingPatient,
+                        telefone: e.target.value,
+                      })
+                    }
+                    className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
+                    required
+                  />
+                </div>
+                {/* CAMPO DATA DE NASCIMENTO */}
+                <div>
+                  <label
+                    htmlFor="editPatientDob"
+                    className="block text-sm font-medium text-gray-300"
+                  >
+                    Data de Nascimento
+                  </label>
+                  <input
+                    type="date"
+                    id="editPatientDob"
+                    value={editingPatient.data_nascimento}
+                    onChange={(e) =>
+                      setEditingPatient({
+                        ...editingPatient,
+                        data_nascimento: e.target.value,
+                      })
+                    }
+                    className="mt-1 block w-full px-3 py-2 border border-green-400/40 rounded-md text-gray-200"
+                    required
+                  />
+                </div>
+                {formError && (
+                  <p className="text-red-500 text-sm">{formError}</p>
+                )}
+                <div className="flex justify-end space-x-2">
+                  <button
+                    type="button"
+                    onClick={cancelEditing}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer transition"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isFormSubmitting}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-400/80 rounded-md hover:bg-green-500/80 cursor-pointer transition"
+                  >
+                    {isFormSubmitting ? "Atualizando..." : "Salvar Alterações"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
         {patients.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-gray-600 shadow-md  border-none text-gray-300">
-              <thead className="bg-gray-700 text-green-400/90  rounded-t-3xl">
-                <tr>
-                  <th className="py-3 px-6 text-left">Nome</th>
-                  <th className="py-3 px-6 text-left">E-mail</th>
-                  <th className="py-3 px-6 text-left">Telefone</th>
-                  <th className="py-3 px-6 text-left">Data de Nasc.</th>
-                  <th className="py-3 px-6 text-center">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {patients.map((patient) => (
-                  <tr key={patient.id} className="border-b hover:bg-gray-500">
-                    <td className="py-4 px-6">
-                      {/* NOVO: Nome do paciente é um link */}
-                      <Link
-                        to={`/patients/${patient.id}`}
-                        className="hover:text-green-400 hover:underline font-medium"
-                      >
-                        {patient.nome_completo}
-                      </Link>
-                    </td>{" "}
-                    <td className="py-4 px-6">{patient.email}</td>
-                    <td className="py-4 px-6">{patient.telefone}</td>
-                    <td className="py-4 px-6">{patient.data_nascimento}</td>
-                    <td className="py-4 px-6 text-center flex flex-wrap items-center justify-center">
+          <>
+            <div
+              className={`grid ${
+                patients.length === 1 ? "grid-cols-1" : "grid-cols-2"
+              } gap-4`}
+            >
+              {patients.map((patient) => (
+                <Link
+                  to={`/patients/${patient.id}`}
+                  key={patient.id}
+                  className="bg-[#303030] p-4 rounded-md hover:scale-101 transition-transform"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="font-medium text-white text-lg">
+                      {patient.nome_completo}
+                    </div>
+                    <div>
                       <button
-                        onClick={() => startEditing(patient)}
-                        className="cursor-pointer text-blue-300 hover:text-blue-700 mr-4"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          startEditing(patient);
+                        }}
+                        className="cursor-pointer text-green-400 hover:text-green-500 font-medium mr-4"
                       >
                         Editar
                       </button>
                       <button
-                        onClick={() => handleDeletePatient(patient.id)}
-                        className="cursor-pointer text-red-500 hover:text-red-700"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDeletePatient(patient.id);
+                        }}
+                        className="cursor-pointer text-red-500 hover:text-red-700 font-medium"
                       >
                         Excluir
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </div>
+                  <p className="text-gray-300 font-medium">
+                    E-mail: {patient.email}
+                  </p>
+                  <p className="text-gray-300 font-medium">
+                    Telefone: {patient.telefone}
+                  </p>
+                  <p className="text-gray-300 font-medium">
+                    Data de Nasc: {formatDateBR(patient.data_nascimento)}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </>
         ) : (
           <p className="text-center text-gray-300 mt-10 text-lg">
             Você ainda não tem pacientes cadastrados.

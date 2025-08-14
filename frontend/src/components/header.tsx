@@ -27,12 +27,12 @@ export function Header({
         return (
           <div className="flex gap-15 text-white font-bold tracking-wider font-light text-lg">
             <a href="/dashboard" className="hover:text-green-400/90">Dashboard</a>
-            <a href="/finance" className="hover:text-green-400/90">Financeiro</a>
+            <a href="/financial" className="hover:text-green-400/90">Financeiro</a>
             <a href="/message" className="hover:text-green-400/90">Mensagens</a>
           </div>
         );
 
-      case "/finance":
+      case "/financial":
         return (
           <div className="flex gap-15 text-white font-bold tracking-wider font-light text-lg">
             <a href="/dashboard" className="hover:text-green-400/90">Dashboard</a>

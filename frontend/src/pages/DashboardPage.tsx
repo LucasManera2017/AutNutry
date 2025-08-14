@@ -98,7 +98,7 @@ function DashboardPage(): JSX.Element {
             </h3>
             <p className="text-gray-400">Registre e acompanhe pagamentos.</p>
             <Link
-              to="/finances"
+              to="/financial"
               className="w-full mt-5 flex justify-center py-3 px-4 border border-transparent rounded-3xl shadow-sm text-sm font-medium text-white bg-green-400/80 hover:bg-[#05DF63] hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
             >
               Ir para Finanças

@@ -60,21 +60,16 @@ function SignupPage(): JSX.Element {
         </h2>
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
-            <label
-              htmlFor="fullName"
-              className="block text-sm font-medium text-gray-400 mb- ml-2"
-            >
-              Nome Completo:
-            </label>
+            
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-600">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                 <MdDriveFileRenameOutline />
               </span>
               <input
                 type="text"
                 id="fullName"
-                className="mt-1 block w-full pl-10 px-3 py-3 border-[0.05px] bg-[rgba(55,65,81,0.15)] border-transparent rounded-3xl shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400/15 sm:text-sm placeholder-gray-600 text-gray-300"
-                placeholder="João Carlos da Cunha"
+                className="mt-1 block w-full pl-10 px-3 py-3 border-[0.05px] bg-[rgba(55,65,81,0.15)] border-transparent rounded-3xl shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400/35 sm:text-sm placeholder-gray-500 text-gray-300"
+                placeholder="*Nome Completo"
                 value={fullName}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFullName(e.target.value)
@@ -84,21 +79,16 @@ function SignupPage(): JSX.Element {
             </div>
           </div>
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-400 mb-1 ml-2"
-            >
-              E-mail:
-            </label>
+            
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-600">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                 <FaUserAlt />
               </span>
               <input
                 type="email"
                 id="email"
-                className="mt-1 block w-full pl-10 px-3 py-3 border-[0.05px] bg-[rgba(55,65,81,0.15)] border-transparent rounded-3xl shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400/15 sm:text-sm placeholder-gray-600 text-gray-300"
-                placeholder="seuemail@exemplo.com"
+                className="mt-1 block w-full pl-10 px-3 py-3 border-[0.05px] bg-[rgba(55,65,81,0.15)] border-transparent rounded-3xl shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400/35 sm:text-sm placeholder-gray-500 text-gray-300"
+                placeholder="*seuemail@exemplo.com"
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setEmail(e.target.value)
@@ -108,20 +98,14 @@ function SignupPage(): JSX.Element {
             </div>
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-400 mb-1 ml-2"
-            >
-              Senha:
-            </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-600">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                 <RiLockPasswordFill />
               </span>
             <input
               type="password"
               id="password"
-              className="mt-1 block w-full pl-10 px-3 py-3 border-[0.05px] bg-[rgba(55,65,81,0.15)] border-transparent rounded-3xl shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400/15 sm:text-sm placeholder-gray-600 text-gray-300"
+              className="mt-1 block w-full pl-10 px-3 py-3 border-[0.05px] bg-[rgba(55,65,81,0.15)] border-transparent rounded-3xl shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400/35 sm:text-sm placeholder-gray-500 text-gray-300"
               placeholder="••••••••"
               value={password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

@@ -1,15 +1,21 @@
 // src/router/index.tsx
-import React, { type JSX, type ReactNode } from 'react'; // Importe ReactNode
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from '../pages/Auth/LoginPage';
-import SignupPage from '../pages/Auth/SignupPage';
-import DashboardPage from '../pages/DashboardPage';
-import NotFoundPage from '../pages/NotFoundPage';
-import { supabase } from '../services/supabase';
-import type { Session } from '@supabase/supabase-js'; // Importe o tipo Session do Supabase JS
-import PatientsPage from '../pages/PatientsPage';
-import PatientDetailsPage from '../pages/PatientDetailsPage';
- // Importe o tipo Session do Supabase JS
+import React, { type JSX, type ReactNode } from "react"; // Importe ReactNode
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import LoginPage from "../pages/Auth/LoginPage";
+import SignupPage from "../pages/Auth/SignupPage";
+import DashboardPage from "../pages/DashboardPage";
+import NotFoundPage from "../pages/NotFoundPage";
+import { supabase } from "../services/supabase";
+import type { Session } from "@supabase/supabase-js"; // Importe o tipo Session do Supabase JS
+import PatientsPage from "../pages/PatientsPage";
+import PatientDetailsPage from "../pages/PatientDetailsPage";
+import FinancialPage  from "../pages/FinancialPage";
+// Importe o tipo Session do Supabase JS
 
 // Defina a interface para as props de PrivateRoute
 interface PrivateRouteProps {
@@ -23,19 +29,24 @@ const PrivateRoute = ({ children }: PrivateRouteProps): JSX.Element => {
 
   React.useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setSession(session);
       setLoading(false);
     };
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
 
     return () => {
-      if (subscription) { // Verifique se a subscription existe antes de desinscrever
+      if (subscription) {
+        // Verifique se a subscription existe antes de desinscrever
         subscription.unsubscribe();
       }
     };
@@ -78,10 +89,22 @@ function AppRouter(): JSX.Element {
           }
         />
 
-        <Route 
-          path="/patients/:id" 
-          element={<PrivateRoute><PatientDetailsPage /></PrivateRoute>} 
-        />  
+        <Route
+          path="/patients/:id"
+          element={
+            <PrivateRoute>
+              <PatientDetailsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/financial"
+          element={
+            <PrivateRoute>
+              <FinancialPage />
+            </PrivateRoute>
+          }
+        />
 
         {/* Redirecionamento da raiz para o login */}
         <Route path="/" element={<Navigate to="/login" replace />} />

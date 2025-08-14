@@ -53,7 +53,7 @@ function LoginPage(): JSX.Element {
               <input
                 type="email"
                 id="email"
-                className="mt-1 block w-full pl-10 px-3 py-3 border-[0.05px] bg-[rgba(55,65,81,0.15)] border-transparent rounded-3xl shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400/15 sm:text-sm placeholder-gray-400 text-gray-300"
+                className="mt-1 block w-full pl-10 px-3 py-3 border-[0.05px] bg-[rgba(55,65,81,0.15)] border-transparent rounded-3xl shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400/35 sm:text-sm placeholder-gray-400 text-gray-300"
                 placeholder="seuemail@exemplo.com"
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -69,7 +69,7 @@ function LoginPage(): JSX.Element {
               <input
                 type="password"
                 id="password"
-                className="mt-1 block w-full pl-10 px-3 py-3 border-[0.05px] bg-[rgba(55,65,81,0.15)] border-transparent rounded-3xl shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400/15 sm:text-sm placeholder-gray-400 text-gray-300"
+                className="mt-1 block w-full pl-10 px-3 py-3 border-[0.05px] bg-[rgba(55,65,81,0.15)] border-transparent rounded-3xl shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400/35 sm:text-sm placeholder-gray-400 text-gray-300"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
